@@ -7,7 +7,7 @@ from django.contrib import messages
 
 class UserRegisterView(View):
     form_class = UserRegisterForm
-    template_name = 'registration/register.html'
+    template_name = 'account/user_register.html'
 
     def get(self, request):
         form = self.form_class()
