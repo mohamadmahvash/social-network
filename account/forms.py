@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 
+class UserLoginForm(forms.Form):
+    username = forms.CharField(widget=forms.TextInput(
+        attrs={'placeholder': 'Your name', 'class': "form-control"}))
+
+    password = forms.CharField(widget=forms.PasswordInput(
+        attrs={'placeholder': 'Your password', 'class': "form-control"}))
+
+
 class UserRegisterForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(
         attrs={'placeholder': 'Your name', 'class': "form-control"}))
