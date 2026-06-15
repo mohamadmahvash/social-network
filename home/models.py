@@ -9,4 +9,4 @@ class Post(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.slug} - {self.created}'
+        return f'{self.slug} - created at:{self.created}'
