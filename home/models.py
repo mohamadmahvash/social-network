@@ -1,3 +1,7 @@
 from django.db import models
 
-# Create your models here.
+class Post(models.Model):
+    body = models.TextField()
+    slug = models.SlugField()
+    created = models.DateTimeField()
+    updated = models.DateTimeField()
