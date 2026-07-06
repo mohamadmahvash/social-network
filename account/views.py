@@ -7,10 +7,13 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 
 
-
 class UserLoginView(View):
     form_class = UserLoginForm
     template_name = 'account/User_login.html'
+
+    def setup(self, request, *args, **kwargs):
+        self.next = request.GET.get('next', None)
+        return super().setup(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -29,6 +32,8 @@ class UserLoginView(View):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'You are now logged in', extra_tags='success')
+                if self.next:
+                    return redirect(self.next)
                 return redirect('home:home')
             messages.warning(request, 'username/password is wrong', extra_tags='warning')
         return render(request, self.template_name, {'form': form})
@@ -71,6 +76,6 @@ class UserProfileView(LoginRequiredMixin, View):
 
     def get(self, request, user_id):
         user = get_object_or_404(User, pk=user_id)
-        #because of related name
+        # because of related name
         posts = user.posts.all()
         return render(request, self.template_name, {'user': user, 'posts': posts})
