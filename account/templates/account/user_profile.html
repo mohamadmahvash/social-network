@@ -7,4 +7,8 @@
             <a href="{{ post.get_absolute_url }}" class="card-body"> {{ post.body|truncatewords:3 }} </a>
         {% endfor %}
     </div>
+    <br>
+    {% if request.user.id == user.id %}
+        <a href="{% url 'home:post_create' %}" class="btn btn-info">Create New Post</a>
+    {% endif %}
 {% endblock %}

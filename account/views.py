@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .forms import UserRegisterForm, UserLoginForm
 from django.contrib.auth.models import User
@@ -70,8 +70,6 @@ class UserProfileView(LoginRequiredMixin, View):
     template_name = 'account/user_profile.html'
 
     def get(self, request, user_id):
-        user = User.objects.get(pk=user_id)
+        user = get_object_or_404(User, pk=user_id)
         posts = Post.objects.filter(owner=user)
-        return render(request, self.template_name, {'user': user , 'posts': posts})
-
-
+        return render(request, self.template_name, {'user': user, 'posts': posts})
