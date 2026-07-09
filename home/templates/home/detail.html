@@ -9,4 +9,19 @@
         <a href="{% url 'home:post_delete' post.id %}" class="btn btn-danger">Delete</a>
         <a href="{% url 'home:post_update' post.id %}" class="btn btn-info">Update</a>
     {% endif %}
+    <br>
+    <br>
+
+    {% if comments %}
+        <p>Comments:</p>
+    {% endif %}
+    {% for comment in comments %}
+        <div class="card bg-dark text-white">
+            <p class="card-header">{{ comment.user }} | {{ comment.created|timesince }}</p>
+            <p class="card-body">{{ comment.body }}</p>
+        </div>
+    {% empty %}
+        <p>No Comments Yet ...!</p>
+    {% endfor %}
+
 {% endblock %}
