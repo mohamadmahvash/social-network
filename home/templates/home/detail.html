@@ -1,25 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
+
     <p><a href="{% url 'account:user_profile' post.owner.id %}">{{ post.owner.username }}</a>
         | {{ post.updated|date:"Y/m/d" }}</p>
     <hr>
     <p>{{ post.body }}</p>
     <br>
+
     {% if request.user.id == post.owner.id %}
         <a href="{% url 'home:post_delete' post.id %}" class="btn btn-danger">Delete</a>
         <a href="{% url 'home:post_update' post.id %}" class="btn btn-info">Update</a>
     {% endif %}
     <br>
-    <br>
 
     {% if comments %}
         <p>Comments:</p>
     {% endif %}
+
+    {% if request.user.is_authenticated %}
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input class="btn btn-primary" type="submit" value="Send"></input>
+        </form>
+    {% endif %}
+
+    <br>
+
     {% for comment in comments %}
         <div class="card bg-dark text-white">
             <p class="card-header">{{ comment.user }} | {{ comment.created|timesince }}</p>
             <p class="card-body">{{ comment.body }}</p>
         </div>
+        <br>
     {% empty %}
         <p>No Comments Yet ...!</p>
     {% endfor %}
