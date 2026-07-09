@@ -1,10 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.context_processors import request
 from django.views import View
 from .forms import UserRegisterForm, UserLoginForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from .models import Relation
 
 
 class UserLoginView(View):
@@ -75,7 +77,35 @@ class UserProfileView(LoginRequiredMixin, View):
     template_name = 'account/user_profile.html'
 
     def get(self, request, user_id):
+        is_following = False
         user = get_object_or_404(User, pk=user_id)
         # because of related name
         posts = user.posts.all()
-        return render(request, self.template_name, {'user': user, 'posts': posts})
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
+        if relation.exists():
+            is_following = True
+        return render(request, self.template_name, {'user': user, 'posts': posts, 'is_following': is_following})
+
+
+class UserFollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
+        if relation.exists():
+            messages.error(request, f'You are already following {user.username}.', extra_tags='danger')
+        else:
+            Relation(from_user=request.user, to_user=user).save()
+            messages.success(request, f'You are now following {user.username}.', extra_tags='success')
+        return redirect('account:user_profile', user_id)
+
+
+class UserUnfollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        user = User.objects.get(id=user_id)
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
+        if relation.exists():
+            relation.delete()
+            messages.success(request, f'You are unfollowing {user.username}.', extra_tags='success')
+        else:
+            messages.error(request, f'You are not following {user.username}.', extra_tags='danger')
+        return redirect('account:user_profile', user_id)
