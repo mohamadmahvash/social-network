@@ -1,11 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
-from django.template.context_processors import request
 from django.views import View
-from .forms import UserRegisterForm, UserLoginForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from .forms import UserRegisterForm, UserLoginForm, EditUserForm
 from .models import Relation
 
 
@@ -75,6 +74,7 @@ class UserRegisterView(View):
 
 class UserProfileView(LoginRequiredMixin, View):
     template_name = 'account/user_profile.html'
+    form_class = EditUserForm
 
     def get(self, request, user_id):
         is_following = False
@@ -84,7 +84,8 @@ class UserProfileView(LoginRequiredMixin, View):
         relation = Relation.objects.filter(from_user=request.user, to_user=user)
         if relation.exists():
             is_following = True
-        return render(request, self.template_name, {'user': user, 'posts': posts, 'is_following': is_following})
+        return render(request, self.template_name,
+                      {'user': user, 'posts': posts, 'is_following': is_following})
 
 
 class UserFollowView(LoginRequiredMixin, View):
@@ -109,3 +110,20 @@ class UserUnfollowView(LoginRequiredMixin, View):
         else:
             messages.error(request, f'You are not following {user.username}.', extra_tags='danger')
         return redirect('account:user_profile', user_id)
+
+
+class EditUserView(LoginRequiredMixin, View):
+    form_class = EditUserForm
+
+    def get(self, request):
+        form = self.form_class(instance=request.user.profile, initial={'email': request.user.email})
+        return render(request, 'account/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            request.user.email = form.cleaned_data['email']
+            request.user.save()
+            messages.success(request, 'Your account has been updated.', extra_tags='success')
+        return redirect('account:user_profile', request.user.id)

@@ -7,6 +7,11 @@
         <a href="{% url 'account:User_unfollow' user.id %}" class="btn btn-warning">Unfollow</a>
     {% endif %}
 
+    {% if request.user.id == user.id %}
+        <a href="{% url 'home:post_create' %}" class="btn btn-info">Create New Post</a>
+        <a href="{% url 'account:edit_user' %}" class="btn btn-primary">Edit User</a>
+    {% endif %}
+
     <h2 class="text-center"> {{ user.username }} </h2>
     <hr>
     <div class="card">
@@ -18,8 +23,6 @@
     </div>
     <br>
 
-    {% if request.user.id == user.id %}
-        <a href="{% url 'home:post_create' %}" class="btn btn-info">Create New Post</a>
-    {% endif %}
+
 
 {% endblock %}
