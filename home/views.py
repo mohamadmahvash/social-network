@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from .forms import PostCreateUpdateForm, CommentCreateForm, CommentReplyForm
 from django.contrib import messages
 from django.utils.text import slugify
@@ -33,7 +33,7 @@ class PostAddReplyView(LoginRequiredMixin, View):
         return redirect('home:post_detail', post.id, post.slug)
 
 
-class ReplyDeleteView(LoginRequiredMixin, View):
+class PostReplyDeleteView(LoginRequiredMixin, View):
     def get(self, request, post_id, reply_id):
         post = get_object_or_404(Post, pk=post_id)
         reply_comment = get_object_or_404(Comment, pk=reply_id)
@@ -58,9 +58,12 @@ class PostDetailView(View):
 
     def get(self, request, *args, **kwargs):
         comments = self.post_instance.PostComments.filter(is_reply=False)
+        can_like = False
+        if request.user.is_authenticated and self.post_instance.user_can_like(request.user):
+            can_like = True
         return render(request, 'home/detail.html',
                       {'post': self.post_instance, 'comments': comments,
-                       'form': self.form_class, 'reply_form': self.form_class_reply})
+                       'form': self.form_class, 'reply_form': self.form_class_reply, 'can_like': can_like})
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
@@ -135,3 +138,15 @@ class PostCreateView(LoginRequiredMixin, View):
             new_post.save()
             messages.success(request, 'Post created successfully', extra_tags='success')
             return redirect('home:post_detail', new_post.id, new_post.slug)
+
+
+class PostLikeView(LoginRequiredMixin, View):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, pk=post_id)
+        like = Like.objects.filter(user=request.user, post=post)
+        if like.exists():
+            messages.error(request, 'You have already liked this post', extra_tags='warning')
+        else:
+            Like.objects.create(user=request.user, post=post)
+            messages.success(request, 'you liked this post successfully', extra_tags='success')
+        return redirect('home:post_detail', post.id, post.slug)

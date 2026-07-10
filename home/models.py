@@ -19,6 +19,15 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('home:post_detail', args=(self.id, self.slug))
 
+    def like_count(self):
+        return self.PostLikes.count()
+
+    def user_can_like(self, user):
+        user_likes = user.UserLikes.filter(post=self)
+        if user_likes.exists():
+            return True
+        return False
+
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='UserComments')
@@ -31,3 +40,11 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.user} : {self.body[:30]}'
+
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='UserLikes')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='PostLikes')
+
+    def __str__(self):
+        return f'{self.user} : {self.post.slug}'
