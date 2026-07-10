@@ -7,6 +7,9 @@ class PostCreateUpdateForm(forms.ModelForm):
         model = Post
         fields = ['body']
 
+class PostSearchForm(forms.Form):
+    search = forms.CharField()
+
 
 class CommentCreateForm(forms.ModelForm):
     class Meta:
@@ -21,3 +24,4 @@ class CommentReplyForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['body']
+

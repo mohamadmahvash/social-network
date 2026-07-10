@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import Post, Comment, Like
-from .forms import PostCreateUpdateForm, CommentCreateForm, CommentReplyForm
+from .forms import PostCreateUpdateForm, CommentCreateForm, CommentReplyForm, PostSearchForm
 from django.contrib import messages
 from django.utils.text import slugify
 from django.utils.decorators import method_decorator
@@ -10,9 +10,15 @@ from django.contrib.auth.decorators import login_required
 
 
 class HomeView(View):
+    form_class = PostSearchForm
+
     def get(self, request):
         posts = Post.objects.all()
-        return render(request, "home/index.html", {'posts': posts})
+        search = request.GET.get('search')
+        if search:
+            # field lookups
+            posts = posts.filter(body__icontains=search)
+        return render(request, "home/index.html", {'posts': posts, 'form': self.form_class})
 
 
 class PostAddReplyView(LoginRequiredMixin, View):

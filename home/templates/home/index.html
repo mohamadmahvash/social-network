@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h3>index page...!</h3>
+    <form action="" method="get" novalidate>
+    {{ form }}
+    <input type="submit" value="Search" class="btn btn-secondary">
+    </form>
     <br>
     <div class="card">
         {% for post in posts %}
