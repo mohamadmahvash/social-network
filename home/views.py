@@ -29,8 +29,21 @@ class PostAddReplyView(LoginRequiredMixin, View):
             reply.reply = comment
             reply.is_reply = True
             reply.save()
-            messages.success(request, 'Your reply has been sent.',extra_tags='success')
-        return redirect('home:post_detail',post.id , post.slug)
+            messages.success(request, 'Your reply has been sent.', extra_tags='success')
+        return redirect('home:post_detail', post.id, post.slug)
+
+
+class ReplyDeleteView(LoginRequiredMixin, View):
+    def get(self, request, post_id, reply_id):
+        post = get_object_or_404(Post, pk=post_id)
+        reply_comment = get_object_or_404(Comment, pk=reply_id)
+        if reply_comment.user.id == request.user.id:
+            reply_comment.delete()
+            messages.success(request, 'Your reply has been deleted.', extra_tags='success')
+        else:
+            messages.error(request, 'Your can not delete reply.', extra_tags='error')
+        return redirect('home:post_detail', post.id, post.slug)
+
 
 class PostDetailView(View):
     form_class = CommentCreateForm

@@ -34,9 +34,9 @@
 
             {% if request.user.is_authenticated %}
                 <form action="{% url 'home:add_reply' post.id comment.id %}" method="POST">
-                {% csrf_token %}
-                {{ reply_form }}
-                <input class="btn btn-primary" type="submit" value="Send">
+                    {% csrf_token %}
+                    {{ reply_form }}
+                    <input class="btn btn-primary" type="submit" value="Send">
                 </form>
             {% endif %}
 
@@ -44,6 +44,11 @@
                 {% for reply in replies %}
                     <p class="bg-primary p-3 m-3">{{ reply.user }} | {{ reply.created|timesince }} <br> {{ reply.body }}
                     </p>
+
+                    {% if request.user.id == reply.user.id %}
+                        <a href="{% url 'home:reply_delete' post.id reply.id %}" class="btn btn-danger" style="width: 5%;">Delete</a>
+                    {% endif %}
+
                 {% endfor %}
             {% endwith %}
 
