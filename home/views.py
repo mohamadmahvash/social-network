@@ -1,6 +1,9 @@
+from lib2to3.fixes.fix_input import context
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
+from django.views.generic import TemplateView
 from .models import Post, Comment, Like
 from .forms import PostCreateUpdateForm, CommentCreateForm, CommentReplyForm, PostSearchForm
 from django.contrib import messages
@@ -156,3 +159,11 @@ class PostLikeView(LoginRequiredMixin, View):
             Like.objects.create(user=request.user, post=post)
             messages.success(request, 'you liked this post successfully', extra_tags='success')
         return redirect('home:post_detail', post.id, post.slug)
+
+
+class AboutView(TemplateView):
+    template_name = 'home/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user.username
