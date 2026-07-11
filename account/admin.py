@@ -7,6 +7,7 @@ from .models import Relation, Profile
 class ProfileInline(admin.StackedInline):
     model = Profile
 
+
 class ExtendedUserAdmin(UserAdmin):
     inlines = [ProfileInline]
 
